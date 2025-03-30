@@ -17,10 +17,41 @@ function PomodoroClock(props) {
 	const timerRef = useRef(null);
 	const audioRef = useRef(null);
 
-	const decrementBreak = () => setBreakLength((prev) => prev > 60 ? prev - 60 : prev);
-	const incrementBreak = () => setBreakLength((prev) => prev < 3600 ? prev + 60 : prev);
-	const decrementSession = () => setSessionLength((prev) => prev > 60 ? prev - 60 : prev);
-	const incrementSession = () => setSessionLength((prev) => prev < 3600 ? prev + 60 : prev);
+	const decrementBreak = () => setBreakLength((prev) => {
+		const newValue = prev > 60 ? prev - 60 : prev;
+
+		if (timerType === 'break')
+			setTimeLeft(newValue);
+
+		return newValue;
+	});
+
+	const incrementBreak = () => setBreakLength((prev) => {
+		const newValue = prev < 3600 ? prev + 60 : prev;
+
+		if (timerType === 'break')
+			setTimeLeft(newValue);
+
+		return newValue;
+	});
+
+	const decrementSession = () => setSessionLength((prev) => {
+		const newValue = prev > 60 ? prev - 60 : prev;
+
+		if (timerType === 'session')
+			setTimeLeft(newValue);
+
+		return newValue;
+	});
+
+	const incrementSession = () => setSessionLength((prev) => {
+		const newValue = prev < 3600 ? prev + 60 : prev;
+
+		if (timerType === 'session')
+			setTimeLeft(newValue);
+
+		return newValue;
+	});
 
 	// Set audio element reference
 	useEffect(() => {
@@ -29,11 +60,6 @@ function PomodoroClock(props) {
 		if (audioRef.current) return;
 		audioRef.current = document.getElementById('beep');
 	})
-
-	// Synchronize time left with session length
-	useEffect(() => {
-		setTimeLeft(sessionLength);
-	}, [sessionLength]);
 
 	// Update background color on parent when timer type changes
 	useEffect(() => {
@@ -53,7 +79,7 @@ function PomodoroClock(props) {
 			}, 2000);
 		}
 	}, [breakLength, sessionLength, timerType, timeLeft]);
-	
+
 	// Format time display from seconds to mm:ss
 	const formatTime = (timeInSec) => {
 		const minutes = Math.floor(timeInSec / 60);
@@ -112,7 +138,7 @@ function PomodoroClock(props) {
 	}
 
 	return (
-		<div className={`${props.onBreak ? 'bg-[#4c9196]' : 'bg-[#c15c5c]'} container mx-auto max-w-lg p-4 rounded-md`}>
+		<div className={`${props.onBreak ? 'bg-[#4c9196]' : 'bg-[#c15c5c]'} container lg:mx-auto max-w-lg p-4 rounded-md mx-2`}>
 			<audio id='beep' src={`/sounds/BeepSound.mp3`}>Your browser does not support the audio element.</audio>
 			<div className='flex justify-between'>
 				<div className='flex items-center flex-col'>
@@ -148,16 +174,16 @@ function PomodoroClock(props) {
 					</div>
 				</div>
 			</div>
-			<div className='flex flex-col items-center gap-6'>
+			<div className='flex flex-col items-center gap-6 mt-6 lg:mt-0'>
 				<div>
-					<p id='timer-label' className='text-4xl text-center select-none'>
+					<p id='timer-label' className='text-xl lg:text-4xl text-center select-none'>
 						{timerType === 'session' ?
 							"Session"
 							:
 							"Break"
 						}
 					</p>
-					<p id='time-left' className='text-9xl font-bold select-none'>
+					<p id='time-left' className='text-6xl lg:text-9xl font-bold select-none'>
 						{formatTime(timeLeft)}
 					</p>
 				</div>
@@ -175,7 +201,7 @@ function PomodoroClock(props) {
 					</button>
 				</div>
 			</div>
-			<p className='mt-4 text-center'>
+			<p className='mt-4 text-center tracking-tight'>
 				Complete sessions: {sessionCount}
 			</p>
 		</div>
