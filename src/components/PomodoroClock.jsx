@@ -90,10 +90,15 @@ function PomodoroClock(props) {
 
 	// Play beep sound when clock reaches 00:00
 	const playBeep = () => {
-		audioRef.current.play();
+		const audioElem = audioRef.current;
+
+		audioElem.play();
+		audioElem.volume = 1.0;
+		audioElem.muted = false;
+
 		setTimeout(() => {
-			audioRef.current.pause();
-			audioRef.current.currentTime = 0;
+			audioElem.pause();
+			audioElem.currentTime = 0;
 		}, 2000);
 	}
 
