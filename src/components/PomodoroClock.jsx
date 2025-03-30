@@ -1,0 +1,185 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { FaArrowUp } from "react-icons/fa";
+import { FaArrowDown } from "react-icons/fa";
+import { VscDebugStart } from "react-icons/vsc";
+import { VscDebugStop } from "react-icons/vsc";
+import { VscDebugRestart } from "react-icons/vsc";
+import './styles.css';
+
+function PomodoroClock(props) {
+
+	const [sessionLength, setSessionLength] = useState(10);
+	const [breakLength, setBreakLength] = useState(10);
+	const [timeLeft, setTimeLeft] = useState(sessionLength);
+	const [timerState, setTimerState] = useState('stopped');
+	const [timerType, setTimerType] = useState('session');
+	const [sessionCount, setSessionCount] = useState(0);
+	const timerRef = useRef(null);
+	const audioRef = useRef(null);
+
+	const decrementBreak = () => setBreakLength((prev) => prev > 60 ? prev - 60 : prev);
+	const incrementBreak = () => setBreakLength((prev) => prev < 3600 ? prev + 60 : prev);
+	const decrementSession = () => setSessionLength((prev) => prev > 60 ? prev - 60 : prev);
+	const incrementSession = () => setSessionLength((prev) => prev < 3600 ? prev + 60 : prev);
+
+	// Set audio element reference
+	useEffect(() => {
+		const title = document.getElementById('title');
+		title.innerHTML = `${formatTime(timeLeft)} [${timerType.charAt(0).toUpperCase() + timerType.slice(1)}] - Pomodoro Clock`; 
+		if (audioRef.current) return;
+		audioRef.current = document.getElementById('beep');
+	})
+
+	// Synchronize time left with session length
+	useEffect(() => {
+		setTimeLeft(sessionLength);
+	}, [sessionLength]);
+
+	// Update background color on parent when timer type changes
+	useEffect(() => {
+		props.setOnBreak(timerType === "break");		
+	}, [props, timerType])
+
+	// If time equals 00:00, play beep, change timer type and set time left based on type.
+	useEffect(() => {
+		if (timeLeft === 0) {
+			playBeep();
+
+			setSessionCount((prev) => timerType === "session" ? prev + 1 : prev);
+			setTimeout(() => {
+				setTimerType(timerType === "session"? "break" : "session");
+				setTimeLeft(timerType === "session"? breakLength : sessionLength);
+				startTimer();
+			}, 2000);
+		}
+	}, [breakLength, sessionLength, timerType, timeLeft]);
+	
+	// Format time display from seconds to mm:ss
+	const formatTime = (timeInSec) => {
+		const minutes = Math.floor(timeInSec / 60);
+		const seconds = timeInSec % 60;
+
+		return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+	}
+
+	// Play beep sound when clock reaches 00:00
+	const playBeep = () => {
+		audioRef.current.play();
+		setTimeout(() => {
+			audioRef.current.pause();
+			audioRef.current.currentTime = 0;
+		}, 2000);
+	}
+
+	// Start timer on button click
+	const startTimer = () => {
+		if (timerRef.current) return;
+
+		setTimerState('running');
+		timerRef.current = setInterval(() => {
+			setTimeLeft((prev) => {
+				if (prev <= 1)
+				{
+					clearIntervalRef();
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000)
+	}
+
+	const stopTimer = () => {
+		if (timerRef.current) {
+			clearIntervalRef();
+		}
+	};
+
+	const clearIntervalRef = () => {
+		clearInterval(timerRef.current);
+		timerRef.current = null;
+		setTimerState("stopped");
+	}
+
+	const resetTimer = () => {
+		if (timerRef.current) {
+			clearInterval(timerRef.current);
+			timerRef.current = null;
+		}
+		setTimerState('stopped');
+		setSessionLength(1500);
+		setTimeLeft(1500);
+		setBreakLength(300);
+	}
+
+	return (
+		<div className={`${props.onBreak ? 'bg-[#4c9196]' : 'bg-[#c15c5c]'} container mx-auto max-w-lg p-4 rounded-md`}>
+			<audio id='beep' src={`/sounds/BeepSound.mp3`}>Your browser does not support the audio element.</audio>
+			<div className='flex justify-between'>
+				<div className='flex items-center flex-col'>
+					<p id="break-label" className='select-none'>
+						Break Length
+					</p>
+					<div className='flex items-center justify-center gap-2 cursor-pointer'>
+						<button id='break-decrement' className='incDecButtons' type='button' disabled={timerState === 'running'} onClick={decrementBreak}>
+							<FaArrowDown />
+						</button>
+						<p id='break-length' className='text-4xl select-none'>
+							{formatTime(breakLength)}
+						</p>
+						<button id='break-increment' className='incDecButtons' type='button' disabled={timerState === 'running'} onClick={incrementBreak}>
+							<FaArrowUp />
+						</button>
+					</div>
+				</div>
+				<div className='flex items-center flex-col'>
+					<p id="session-label" className='select-none'>
+						Session Length
+					</p>
+					<div className='flex items-center gap-2'>
+						<button id='session-decrement' className='incDecButtons' type='button' disabled={timerState === 'running'} onClick={decrementSession}>
+							<FaArrowDown />
+						</button>
+						<p id='session-length' className='text-4xl select-none'>
+							{formatTime(sessionLength)}
+						</p>
+						<button id='session-increment' className='incDecButtons' type='button' disabled={timerState === 'running'} onClick={incrementSession}>
+							<FaArrowUp />
+						</button>
+					</div>
+				</div>
+			</div>
+			<div className='flex flex-col items-center gap-6'>
+				<div>
+					<p id='timer-label' className='text-4xl text-center select-none'>
+						{timerType === 'session' ?
+							"Session"
+							:
+							"Break"
+						}
+					</p>
+					<p id='time-left' className='text-9xl font-bold select-none'>
+						{formatTime(timeLeft)}
+					</p>
+				</div>
+				<div className='flex gap-2'>
+					<button id="start_stop" type='button' className='startRestartButtons' onClick={() => timerState === 'running' ? stopTimer() : startTimer()}>
+						{timerState === 'stopped' ?
+							<VscDebugStart className={`${props.onBreak ? 'text-[#4c9196]' : 'text-[#c15c5c]'} text-3xl`} />
+							:
+							<VscDebugStop className={`${props.onBreak ? 'text-[#4c9196]' : 'text-[#c15c5c]'} text-3xl`} />
+						}
+					</button>
+
+					<button id="reset" type='button' className='startRestartButtons' onClick={resetTimer}>
+						<VscDebugRestart className={`${props.onBreak ? 'text-[#4c9196]' : 'text-[#c15c5c]'} text-3xl`} />
+					</button>
+				</div>
+			</div>
+			<p className='mt-4 text-center'>
+				Complete sessions: {sessionCount}
+			</p>
+		</div>
+	)
+}
+
+export default PomodoroClock
