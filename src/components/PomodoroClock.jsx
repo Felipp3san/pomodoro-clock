@@ -90,15 +90,20 @@ function PomodoroClock(props) {
 
 	// Play beep sound when clock reaches 00:00
 	const playBeep = () => {
-		const audioElem = audioRef.current;
+		const audio = new Audio('/sounds/BeepSound.mp3');
+		audio.volume = 1.0;
+		audio.muted = false;
 
-		audioElem.play();
-		audioElem.volume = 1.0;
-		audioElem.muted = false;
+		audio.load();
+		audio.play().then(() => {
+        })
+        .catch(err => {
+          console.info(err)
+        });
 
 		setTimeout(() => {
-			audioElem.pause();
-			audioElem.currentTime = 0;
+			audio.pause();
+			audio.currentTime = 0;
 		}, 2000);
 	}
 
@@ -144,7 +149,6 @@ function PomodoroClock(props) {
 
 	return (
 		<div className={`${props.onBreak ? 'bg-[#4c9196]' : 'bg-[#c15c5c]'} container lg:mx-auto max-w-lg p-4 rounded-md mx-2`}>
-			<audio id='beep' src={`/sounds/BeepSound.mp3`}>Your browser does not support the audio element.</audio>
 			<div className='flex justify-between'>
 				<div className='flex items-center flex-col'>
 					<p id="break-label" className='select-none'>
