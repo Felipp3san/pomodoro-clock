@@ -96,15 +96,15 @@ function PomodoroClock(props) {
 
 		audio.load();
 		audio.play().then(() => {
+			setTimeout(() => {
+				audio.pause();
+				audio.currentTime = 0;
+			}, 2000);
         })
         .catch(err => {
           console.info(err)
         });
 
-		setTimeout(() => {
-			audio.pause();
-			audio.currentTime = 0;
-		}, 2000);
 	}
 
 	// Start timer on button click
