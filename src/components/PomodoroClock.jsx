@@ -90,7 +90,6 @@ function PomodoroClock(props) {
 
 	// Play beep sound when clock reaches 00:00
 	const playBeep = () => {
-		const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 		const audio = new Audio('/sounds/BeepSound.mp3');
 		audio.volume = 1.0;
 		audio.muted = false;
