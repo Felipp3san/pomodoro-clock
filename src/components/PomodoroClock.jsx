@@ -8,8 +8,8 @@ import './styles.css';
 
 function PomodoroClock(props) {
 
-	const [sessionLength, setSessionLength] = useState(10);
-	const [breakLength, setBreakLength] = useState(10);
+	const [sessionLength, setSessionLength] = useState(1500);
+	const [breakLength, setBreakLength] = useState(300);
 	const [timeLeft, setTimeLeft] = useState(sessionLength);
 	const [timerState, setTimerState] = useState('stopped');
 	const [timerType, setTimerType] = useState('session');
