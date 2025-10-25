@@ -21,24 +21,24 @@ A fully functional **Pomodoro Timer** built with React, designed to help improve
 
 1. Clone the repository:
 
-   \`\`\`bash
+   ```bash
    git clone https://github.com/Felipp3san/pomodoro-clock.git
    cd pomodoro-clock
-   \`\`\`
+   ```
 
 2. Install dependencies:
 
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Start the development server:
 
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
-4. Open the app in your browser at \`http://localhost:5173/\` (or the port specified by Vite).
+4. Open the app in your browser at `http://localhost:5173/` (or the port specified by Vite).
 
 ## Usage
 
